@@ -1,0 +1,11 @@
+# Same line endings on Windows and macOS, so files don't show as changed
+# just because they were opened on the other machine.
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+*.png binary
+*.jpg binary
+*.wasm binary
+*.jar binary
