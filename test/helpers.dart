@@ -11,10 +11,13 @@ Place place(
   Set<Interest> interests = const {Interest.culture},
   int minutes = 60,
   Set<DaySlot> slots = const {},
+  String? name,
+  String? local,
 }) =>
     Place(
       id: id,
-      nameEn: id,
+      nameEn: name ?? id,
+      nameLocal: local,
       destinationId: destination,
       area: area,
       latitude: lat,

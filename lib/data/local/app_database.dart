@@ -9,7 +9,7 @@ import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 /// [_migrations]. Never edit a migration that has already shipped.
 class AppDatabase {
   static const fileName = 'vietnam_tripmate.db';
-  static const schemaVersion = 1;
+  static const schemaVersion = 2;
 
   static const Map<int, List<String>> _migrations = {
     1: [
@@ -114,6 +114,13 @@ class AppDatabase {
         PRIMARY KEY (provider_id, id)
       )''',
       'CREATE INDEX idx_offers_destination ON affiliate_offers(destination_id)',
+    ],
+    2: [
+      '''
+      CREATE TABLE saved_places (
+        place_id TEXT PRIMARY KEY REFERENCES places(id) ON DELETE CASCADE,
+        saved_at TEXT NOT NULL
+      )''',
     ],
   };
 

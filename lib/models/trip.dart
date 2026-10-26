@@ -117,12 +117,23 @@ class TripDraft {
     return text.isEmpty ? null : double.tryParse(text);
   }
 
-  List<String> validate() {
+  List<String> validate() => [...validateWhere(), ...validateWhen(), ...validateDetails()];
+
+  /// Wizard step 1.
+  List<String> validateWhere() => [
+        if (origin.trim().isEmpty) 'Enter where you are starting from.',
+        if (origin.trim().length > 100) 'Starting point is too long.',
+        if (destinationIds.isEmpty) 'Choose at least one destination.',
+      ];
+
+  /// Final step.
+  List<String> validateDetails() => [
+        if (title.trim().length > 80) 'Trip name is too long.',
+      ];
+
+  /// Wizard step 2.
+  List<String> validateWhen() {
     final errors = <String>[];
-    if (origin.trim().isEmpty) errors.add('Enter where you are starting from.');
-    if (origin.trim().length > 100) errors.add('Starting point is too long.');
-    if (title.trim().length > 80) errors.add('Trip name is too long.');
-    if (destinationIds.isEmpty) errors.add('Choose at least one destination.');
     final start = startDate;
     final end = endDate;
     if (start == null || end == null) {

@@ -6,10 +6,16 @@
 
 | Tính năng | Trạng thái |
 |---|---|
-| Home: giới thiệu, Create a Trip, điểm đến phổ biến, chuyến đi đã lưu | ✅ |
-| Create Trip: điểm xuất phát, điểm đến, ngày, số người, ngân sách, tiền tệ, sở thích, nhịp độ, phương tiện, kiểm tra đầu vào | ✅ |
-| Itinerary: chia theo ngày và buổi sáng/chiều/tối, gom địa điểm gần nhau, ước tính di chuyển, thời gian dự phòng | ✅ |
-| Sửa lịch trình: thêm, xóa, lên/xuống, chuyển buổi, thay địa điểm, tạo lại một ngày | ✅ |
+| Design system riêng: font Plus Jakarta Sans (OFL), bảng màu riêng, light và dark mode, minh họa vẽ bằng code | ✅ |
+| Onboarding 3 trang, chỉ hiện ở lần mở đầu tiên | ✅ |
+| Thanh tab: Explore · Trips · Saved · Settings | ✅ |
+| Explore: chuyến đi sắp tới, carousel điểm đến, duyệt theo sở thích, gợi ý buổi tối | ✅ |
+| Tìm kiếm địa điểm (gõ không dấu vẫn tìm được, ví dụ "cho han"), lọc theo điểm đến và sở thích | ✅ |
+| Lưu địa điểm yêu thích (♥), xem trong tab Saved | ✅ |
+| Create Trip: wizard 4 bước (Where → When & who → Style → Review), kiểm tra đầu vào theo từng bước | ✅ |
+| Itinerary: timeline theo ngày với giờ gợi ý, ước tính di chuyển, thanh thời gian dự phòng | ✅ |
+| Sửa lịch trình bằng bottom sheet: lên/xuống, chuyển buổi, thay, xóa (có Undo), tạo lại một ngày | ✅ |
+| Thêm địa điểm vào chuyến đi ngay từ trang chi tiết (chọn chuyến, ngày, buổi) | ✅ |
 | Places: nguồn dữ liệu, trạng thái xác minh, tọa độ | ✅ (dữ liệu **chưa xác minh**) |
 | Trip Map: mở Apple Maps/Google Maps, chỉ đường, lộ trình cả ngày | ✅ (không dùng API trả phí, không xin quyền vị trí) |
 | Affiliate Offers: interface `AffiliateProvider`, thông báo hoa hồng, cache offline | ✅ chỉ có **mock data** |
@@ -70,7 +76,7 @@ test/                       test thuật toán, editor, validation, repository, 
 
 ## Cơ sở dữ liệu
 
-Các bảng gồm: `destinations`, `places`, `trips`, `trip_destinations`, `itinerary_days`, `itinerary_items`, `affiliate_offers`, `app_settings`. Khóa ngoại được bật (`PRAGMA foreign_keys = ON`):
+Các bảng gồm: `destinations`, `places`, `trips`, `trip_destinations`, `itinerary_days`, `itinerary_items`, `affiliate_offers`, `app_settings`, `saved_places` (thêm ở schema v2). Khóa ngoại được bật (`PRAGMA foreign_keys = ON`):
 
 - Xóa trip sẽ xóa luôn ngày, mục lịch trình và liên kết điểm đến (CASCADE).
 - Không thể xóa place hoặc destination đang được lịch trình sử dụng (RESTRICT).

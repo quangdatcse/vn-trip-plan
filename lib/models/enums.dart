@@ -53,15 +53,18 @@ enum TransportMode {
 }
 
 enum DaySlot {
-  morning('Morning', '~8:00–12:00', 240),
-  afternoon('Afternoon', '~13:30–17:30', 240),
-  evening('Evening', '~18:30–21:30', 180);
+  morning('Morning', '~8:00–12:00', 8 * 60, 240),
+  afternoon('Afternoon', '~13:30–17:30', 13 * 60 + 30, 240),
+  evening('Evening', '~18:30–21:30', 18 * 60 + 30, 180);
 
-  const DaySlot(this.label, this.window, this.lengthMinutes);
+  const DaySlot(this.label, this.window, this.startMinute, this.lengthMinutes);
   final String label;
 
   /// Suggested time window shown to the user. Not tied to opening hours.
   final String window;
+
+  /// Minutes after midnight.
+  final int startMinute;
   final int lengthMinutes;
 }
 

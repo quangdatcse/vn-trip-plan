@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../core/utils/ids.dart';
 import '../data/repositories/catalog_repository.dart';
 import '../data/repositories/offers_repository.dart';
+import '../data/repositories/saved_places_repository.dart';
 import '../data/repositories/settings_repository.dart';
 import '../data/repositories/trip_repository.dart';
 import '../models/destination.dart';
@@ -69,6 +71,58 @@ final tripPlanProvider = FutureProvider.autoDispose.family<TripPlan?, String>(
 final offersProvider = FutureProvider.autoDispose.family<OffersResult, String>(
   (ref, destinationId) => ref.watch(offersRepositoryProvider).offersFor(destinationId),
 );
+
+final savedPlacesRepositoryProvider =
+    Provider((ref) => SavedPlacesRepository(ref.watch(databaseProvider)));
+
+final savedPlaceIdsProvider = FutureProvider<List<String>>(
+  (ref) => ref.watch(savedPlacesRepositoryProvider).savedIds(),
+);
+
+/// Preferences read once in `main()` so the first frame uses them.
+class StartupPreferences {
+  const StartupPreferences({required this.onboardingDone, required this.themeMode});
+
+  final bool onboardingDone;
+  final ThemeMode themeMode;
+
+  static Future<StartupPreferences> load(SettingsRepository settings) async =>
+      StartupPreferences(
+        onboardingDone: await settings.getBool(SettingsRepository.onboardingDoneKey),
+        themeMode: ThemeMode.values.asNameMap()[await settings.get(SettingsRepository.themeModeKey)] ??
+            ThemeMode.system,
+      );
+}
+
+final startupPreferencesProvider = Provider<StartupPreferences>(
+  (ref) => const StartupPreferences(onboardingDone: true, themeMode: ThemeMode.system),
+);
+
+class ThemeModeController extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() => ref.watch(startupPreferencesProvider).themeMode;
+
+  Future<void> set(ThemeMode mode) async {
+    state = mode;
+    await ref.read(settingsRepositoryProvider).set(SettingsRepository.themeModeKey, mode.name);
+  }
+}
+
+final themeModeProvider =
+    NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);
+
+class OnboardingController extends Notifier<bool> {
+  @override
+  bool build() => ref.watch(startupPreferencesProvider).onboardingDone;
+
+  Future<void> setDone(bool done) async {
+    state = done;
+    await ref.read(settingsRepositoryProvider).setBool(SettingsRepository.onboardingDoneKey, done);
+  }
+}
+
+final onboardingDoneProvider =
+    NotifierProvider<OnboardingController, bool>(OnboardingController.new);
 
 final dealClickCountingProvider = FutureProvider<bool>(
   (ref) => ref

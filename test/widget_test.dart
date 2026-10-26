@@ -1,7 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/widgets.dart';
-
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -13,12 +12,7 @@ import 'package:vietnam_tripmate/data/sources/catalog_seeder.dart';
 void main() {
   sqfliteFfiInit();
 
-  testWidgets('Home screen shows the app name and Create a Trip', (tester) async {
-    // Tall phone-sized viewport so the "Your trips" section is built.
-    tester.view.physicalSize = const Size(430, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-
+  Future<Database> openSeeded(WidgetTester tester) async {
     // Database work uses real I/O, so it runs outside the fake-async zone.
     final db = (await tester.runAsync(() async {
       final db = await AppDatabase.openWith(databaseFactoryFfiNoIsolate, inMemoryDatabasePath);
@@ -26,19 +20,57 @@ void main() {
       return db;
     }))!;
     addTearDown(() => tester.runAsync(db.close));
+    return db;
+  }
 
+  Future<void> settle(WidgetTester tester) async {
+    for (var i = 0; i < 6; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  void phoneViewport(WidgetTester tester) {
+    tester.view.physicalSize = const Size(430, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+  }
+
+  testWidgets('first launch shows onboarding', (tester) async {
+    phoneViewport(tester);
+    final db = await openSeeded(tester);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        startupPreferencesProvider.overrideWithValue(
+            const StartupPreferences(onboardingDone: false, themeMode: ThemeMode.light)),
+      ],
+      child: const TripMateApp(),
+    ));
+    await settle(tester);
+
+    expect(find.text('Skip'), findsOneWidget);
+    expect(find.text('Next'), findsOneWidget);
+  });
+
+  testWidgets('Explore shows destinations and tabs', (tester) async {
+    phoneViewport(tester);
+    final db = await openSeeded(tester);
     await tester.pumpWidget(ProviderScope(
       overrides: [databaseProvider.overrideWithValue(db)],
       child: const TripMateApp(),
     ));
-    for (var i = 0; i < 5; i++) {
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-      await tester.pump();
+    await settle(tester);
+
+    expect(find.text('Where in Vietnam\nare you heading?'), findsOneWidget);
+    expect(find.text('Da Nang'), findsWidgets);
+    expect(find.text('Plan a trip in a minute'), findsOneWidget);
+    for (final tab in ['Explore', 'Trips', 'Saved', 'Settings']) {
+      expect(find.text(tab), findsOneWidget);
     }
 
-    expect(find.text('Vietnam TripMate'), findsWidgets);
-    expect(find.text('Create a Trip'), findsOneWidget);
-    expect(find.text('Da Nang'), findsOneWidget);
+    await tester.tap(find.text('Trips'));
+    await settle(tester);
     expect(find.text('No trips yet'), findsOneWidget);
   });
 }

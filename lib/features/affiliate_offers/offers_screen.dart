@@ -5,6 +5,7 @@ import '../../app/providers.dart';
 import '../../models/affiliate_offer.dart';
 import '../../services/affiliate/affiliate_provider.dart';
 import '../../services/maps/maps_launcher.dart';
+import '../../shared/widgets/artwork.dart';
 import '../../shared/widgets/state_views.dart';
 
 const affiliateDisclosure =
@@ -42,7 +43,7 @@ class OffersScreen extends ConsumerWidget {
         value: result,
         onRetry: () => ref.invalidate(offersProvider(destinationId)),
         data: (r) => ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
           children: [
             Card(
               color: theme.colorScheme.secondaryContainer,
@@ -53,6 +54,7 @@ class OffersScreen extends ConsumerWidget {
                         ?.copyWith(color: theme.colorScheme.onSecondaryContainer)),
               ),
             ),
+            if (provider.isMock) const SizedBox(height: 12),
             if (provider.isMock)
               Card(
                 color: theme.colorScheme.tertiaryContainer,
@@ -83,7 +85,10 @@ class OffersScreen extends ConsumerWidget {
                 title: 'No offers for this destination yet',
               ),
             for (final offer in r.offers)
-              _OfferCard(offer: offer, onViewDeal: () => _openDeal(context, ref, offer)),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: _OfferCard(offer: offer, onViewDeal: () => _openDeal(context, ref, offer)),
+              ),
           ],
         ),
       ),
@@ -110,11 +115,7 @@ class _OfferCard extends StatelessWidget {
           AspectRatio(
             aspectRatio: 16 / 7,
             child: offer.imageUrl == null
-                ? ColoredBox(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: Icon(Icons.local_activity_outlined,
-                        size: 40, color: theme.colorScheme.outline),
-                  )
+                ? SceneArtwork(destinationId: offer.destinationId)
                 : Image.network(
                     offer.imageUrl!,
                     fit: BoxFit.cover,

@@ -5,6 +5,8 @@ class SettingsRepository {
 
   static const dealClickCountingKey = 'deal_click_counting_enabled';
   static const dealClickCountKey = 'deal_click_count';
+  static const onboardingDoneKey = 'onboarding_done';
+  static const themeModeKey = 'theme_mode';
 
   final Database _db;
 
